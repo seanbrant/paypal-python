@@ -322,7 +322,32 @@ class PayPalInterface(object):
                 
         """
         return self._call('DoExpressCheckoutPayment', **kwargs)
-        
+
+    def refund_transaction(self, transactionid, amt=None, currencycode=None,
+                           fullrefund=True, note=None, invoiceid=None):
+        kwargs = {
+            'transactionid': transactionid,
+            'refundtype': fullrefund and 'Full' or 'Partial',
+        }
+
+        if amt is None and fullrefund is False:
+            raise PayPalError('missing required : amt')
+        elif amt and fullrefund is False:
+            kwargs['amt'] = amt
+
+        if currencycode is None and fullrefund is False:
+            raise PayPalError('missing required : currencycode')
+        elif currencycode and fullrefund is False:
+            kwargs['currencycode'] = currencycode
+
+        if invoiceid:
+            kwargs['invoiceid'] = invoiceid
+
+        if note:
+            kwargs['note'] = note
+
+        return self._call('RefundTransaction', **kwargs)
+
     def generate_express_checkout_redirect_url(self, token):
         """Returns the URL to redirect the user to for the Express checkout.
 
