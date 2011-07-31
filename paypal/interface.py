@@ -348,6 +348,15 @@ class PayPalInterface(object):
 
         return self._call('RefundTransaction', **kwargs)
 
+    def mass_pay(self, payments, currencycode=None):
+        kwargs = {'RECEIVERTYPE': 'EmailAddress'}
+        for i, (email, amount) in enumerate(payments):
+            kwargs['L_EMAIL%s' % i] = email
+            kwargs['L_AMT%s' % i] = unicode(amount)
+        if currencycode:
+            kwargs['CURRENCYCODE'] = currencycode
+        return self._call('MassPay', **kwargs)
+
     def generate_express_checkout_redirect_url(self, token):
         """Returns the URL to redirect the user to for the Express checkout.
 
